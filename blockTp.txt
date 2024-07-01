@@ -1,0 +1,125 @@
+Realizar un programa en assembler que implemente un bot para consultas aritméticas.
+El procesamiento del bot debe responder a consultas aritméticas, por ejemplo, sumar un par de números,
+o restarlos. Los mensajes deben restringirse al lenguaje aceptado por el bot que se describe más adelante
+en consideraciones generales.
+Extender el procesamiento del bot para que dé una respuesta cordial en caso de error, es decir, cuando la
+expresión tipeada por el usuario no pertenece al lenguaje aceptado por el bot.
+Por ejemplo, puede responder: “Lo siento, mis respuestas son limitadas.”
+La estructura principal del código debe ser ejecutada en C. 
+void LeerPregunta(); Muestra un mensaje solicitando ingreso y se ingresa la pregunta
+Recomendación: Utilizar la función strtok() para separar la operación en elementos, y luego convertirlos a int con 
+la función atoi().
+El formato de la operación debe ser el siguiente: "10 + 10", "20 * 2", "30 / 3", "40 - 20", es decir, un
+espacio entre operando y operador.
+int CalcularOperacion(int Operando1, char Operador, int Operando2); La misma devuelve
+el resultado de la operación
+La estructura del código en ASM debe ser la siguiente:
+recibir_Operacion: Recibe los 3 parámetros y chequea qué cálculo debe realizar
+Recomendación: Usar comparadores con ASCII para el operador y así saltar a la operación correspondiente
+sum: Suma los 2 operandos
+res: Resta los 2 operandos
+mul: Multiplica los 2 operandos
+div: Divide los 2 operandos
+Desarrollar un informe explicando claramente cómo funciona (transcriba el código necesario).
+El resultado de la operación debe mostrarse en pantalla a través de lenguaje C.
+
+Para implementar un programa en assembler que implemente un bot para consultas aritméticas, puedes seguir los siguientes pasos:
+
+1. Definir la estructura principal en C para manejar la entrada del usuario y llamar a las funciones en assembler.
+
+#include <stdio.h>
+#include <string.h>
+
+void LeerPregunta(char pregunta[]) {
+    printf("Ingrese una operación aritmética (ejemplo: 10 + 5): ");
+    fgets(pregunta, 50, stdin);
+    // Eliminar el salto de línea al final de la entrada
+    pregunta[strcspn(pregunta, "\n")] = 0;
+}
+
+int CalcularOperacion(int Operando1, char Operador, int Operando2);
+
+extern int recibir_Operacion(int Operando1, char Operador, int Operando2);
+
+int main() {
+    char pregunta[50];
+    LeerPregunta(pregunta);
+
+    int Operando1, Operando2, resultado;
+    char Operador;
+
+    // Separar la pregunta en elementos usando strtok()
+    char *token = strtok(pregunta, " ");
+    Operando1 = atoi(token);
+
+    token = strtok(NULL, " ");
+    Operador = token[0];
+
+    token = strtok(NULL, " ");
+    Operando2 = atoi(token);
+
+    resultado = CalcularOperacion(Operando1, Operador, Operando2);
+    printf("Resultado: %d\n", resultado);
+
+    return 0;
+}
+2. Implementar las funciones en assembler para manejar la operación y devolver el resultado.
+
+section .text
+    global recibir_Operacion
+
+recibir_Operacion:
+    ; Parámetros:
+    ; rdi = Operando1
+    ; rsi = Operador
+    ; rdx = Operando2
+
+    cmp byte [rsi], '+' ; Comprobar si el operador es suma
+    je sum
+
+    cmp byte [rsi], '-' ; Comprobar si el operador es resta
+    je res
+
+    cmp byte [rsi], '*' ; Comprobar si el operador es multiplicación
+    je mul
+
+    cmp byte [rsi], '/' ; Comprobar si el operador es división
+    je div
+
+    ; Si el operador no es válido, devolver un mensaje de error
+    mov rax, -1 ; Código de error
+    ret
+
+sum:
+    add rdi, rdx ; Sumar Operando1 y Operando2
+    mov rax, rdi ; Colocar el resultado en rax
+    ret
+
+res:
+    sub rdi, rdx ; Restar Operando1 y Operando2
+    mov rax, rdi ; Colocar el resultado en rax
+    ret
+
+mul:
+    imul rdi, rdx ; Multiplicar Operando1 y Operando2
+    mov rax, rdi ; Colocar el resultado en rax
+    ret
+
+div:
+    xor rax, rax ; Limpiar rax
+    mov rsi, rdx ; Mover Operando2 a rsi para división
+    idiv rsi ; Dividir Operando1 entre Operando2
+    ret
+En este código, la función recibir_Operacion en assembler recibe los tres parámetros y determina
+ qué operación aritmética realizar según el operador ingresado. Luego, devuelve el resultado de 
+ la operación o un código de error si la operación no es válida. Las funciones de suma, resta, multiplicación y
+ división están implementadas en assembler y se llaman según corresponda.
+
+Para compilar y ejecutar este programa, se debe ensamblar el código assembler y luego compilar el código C 
+junto con el archivo objeto generado:
+
+nasm -f elf64 -o bot.o bot.asm
+gcc -o bot bot.o main.c
+./bot
+Este programa permite al usuario ingresar operaciones aritméticas simples y muestra el resultado en pantalla 
+utilizando lenguaje C para la entrada/salida y assembler para el cálculo de la operación.

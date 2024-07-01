@@ -1,0 +1,45 @@
+section .text
+global operacion
+
+operacion:
+    cmp rdx, '*'      ; Comparar el tercer argumento con 2
+    je multiplicacion ; Saltar a multiplicacion si es igual a 2
+
+    cmp rdx, '/'     ; Comparar el tercer argumento con 3
+    je division     ; Saltar a division si es igual a 3
+
+    cmp rdx, '+'      ; Comparar el tercer argumento con 0
+    je suma         ; Saltar a suma si es igual a 0
+
+    ; Si no coincide con ninguno de los casos anteriores, realizar la resta
+    mov rax, rdi
+    sub rax, rsi
+    ret
+
+suma:
+    ; Realizar la suma
+    mov rax, rdi
+    add rax, rsi
+    ret
+
+multiplicacion:
+    ; Realizar la multiplicacion
+    mov rax, rdi
+    imul rax, rsi
+    ret
+
+division:
+    ; Comprobar si el segundo operando es 0 (división por cero)
+    cmp rsi, 0
+    je error_division ; Si es cero, ir a error_division
+
+    ; Realizar la división
+    mov rax, rdi
+    cqo ; Preparar para la división
+    idiv rsi
+    ret
+
+error_division:
+    ; Enviar un código de error (-1)
+    mov rax, -1
+    ret

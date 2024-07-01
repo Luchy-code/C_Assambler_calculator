@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+extern int operacion(int a, int b, int op);
+int validarOperacion(char* entrada) {
+    int longitud = strlen(entrada);
+
+    // Verificar la longitud mínima de la cadena
+    if (longitud < 5) { // El formato mínimo es "a + b" (5 caracteres)
+        return 0;
+    }
+
+    // Verificar el primer operando
+    int i = 0;
+    while (isdigit(entrada[i])) {
+        i++;
+    }
+    if (i == 0) { // No se encontró ningún dígito
+        return 0;
+    }
+
+
+    // Verificar el espacio después del primer operando
+    if (!isspace(entrada[i])) {
+        return 0;
+    }
+
+    i++; // Avanzar al siguiente caracter después del espacio
+
+    // Verificar el operador
+    if (entrada[i] != '+' && entrada[i] != '-' && entrada[i] != '*' && entrada[i] != '/') {
+        return 0;
+    }
+
+    i++; // Avanzar al siguiente caracter después del operador
+
+    // Verificar el espacio después del operador
+    if (!isspace(entrada[i])) {
+        return 0;
+    }
+
+    i++; // Avanzar al siguiente caracter después del espacio
+
+    // Verificar el segundo operando
+    while (isdigit(entrada[i])) {
+        i++;
+    }
+    if (i == longitud) { // Se llegó al final de la cadena después del segundo operando
+        return 1; // Operación válida
+    }
+
+    return 0; // Si se llega aquí, la operación no es válida
+}
+
+int main() {
+    char entrada[100];
+    int num1, num2, resultado;
+    char operador;
+while(1){
+    printf("Ingrese la operación en formato 'num1 operador num2' (ejemplo: 12 + 34): ");
+    fgets(entrada, sizeof(entrada), stdin);
+
+    // Eliminar el carácter de nueva línea al final de la entrada, si existe
+    entrada[strcspn(entrada, "\n")] = '\0';
+
+if(strcmp(entrada,"x")==0){printf("Saliendo del bot..\n"); break;}
+
+    // Analizar la entrada
+    /*if (sscanf(entrada, "%d %c %d", &num1, &operador, &num2) != 3) {
+        printf("Entrada no válida. Asegúrese de usar el formato 'num1 operador num2'.\n");
+    }*/
+
+    if (validarOperacion(entrada)) {
+    sscanf(entrada, "%d %c %d", &num1, &operador, &num2);
+        switch (operador) {
+        case '+':
+            resultado = operacion(num1, num2, 43);
+            printf("La suma es: %d\n", resultado);
+            break;
+        case '-':
+            resultado = operacion(num1, num2, 45);
+            printf("La resta es: %d\n", resultado);
+           break;
+	 case '*':
+            resultado = operacion(num1, num2, 42);
+            printf("La multiplicación es: %d\n", resultado);
+            break;
+        case '/':
+            if (num2 != 0) {
+                resultado = operacion(num1, num2, 47);
+                printf("La división es: %d\n", resultado);
+            } else {
+                printf("Error: División por cero no permitida.\n");
+            }
+            break;
+        default:
+            printf("Operador no válido. Use uno de los siguientes: +, -, *, /.\n");
+           // break;
+    }
+        } else {
+            printf("Lo siento, mis respuestas son limitadas.\n");
+        }
+
+}
+    return 0;
+}
